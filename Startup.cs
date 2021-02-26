@@ -8,6 +8,8 @@ using OneBot.CommandRoute.Models.VO;
 using OneBot.CommandRoute.Services;
 using OneBot.CommandRoute.Services.Implements;
 using OneBot.FrameworkDemo.Modules;
+using OneBot_CommandRoute.CommandRoute.Utils;
+using YukariToolBox.FormatLog;
 
 
 namespace OneBot.FrameworkDemo
@@ -35,6 +37,9 @@ namespace OneBot.FrameworkDemo
 
             // 设置指令路由服务
             services.AddSingleton<ICommandService, CommandService>();
+
+            // 设置日志服务，将 Sora 日志服务设置 Microsoft.Extensions.Logging.ILogger
+            services.AddSingleton<ILogService, YukariToolBoxLogger>();
 
             // 添加指令 / 事件
             // 使用单例模式
