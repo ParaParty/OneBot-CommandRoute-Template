@@ -1,9 +1,17 @@
 # OneBot - Command Route Project Template
 
 ## 使用说明
+### 使用反向 WS
 1. 克隆本项目。
-2. 将 `appsettings-example.Development.json` 重命名为 `appsettings.Development.json`。
-3. 将 `appsettings-example.json` 重命名为 `appsettings.json`。
+2. 将 `appsettings-reverse_ws-example.Development.json` 重命名为 `appsettings.Development.json`。
+3. 将 `appsettings-reverse_ws-example.json` 重命名为 `appsettings.json`。
+4. 根据需要编辑配置文件中的信息。
+5. 编译运行。
+
+### 使用正向 WS
+1. 克隆本项目。
+2. 将 `appsettings-ws-example.Development.json` 重命名为 `appsettings.Development.json`。
+3. 将 `appsettings-ws-example.json` 重命名为 `appsettings.json`。
 4. 根据需要编辑配置文件中的信息。
 5. 编译运行。
 
@@ -27,6 +35,26 @@
         }  
     ```
 - 使用属性 `[Command]` 来将本函数定义为一个指令函数。若接收到合适的消息，本方法会被调用。
+- 方法参数会被服务容器进行依赖注入，注入环境为 Scope。
+
+### 小程序信息监听
+- 见类 `OneBot.FrameworkDemo.Modules.TestModule`。
+    ```cs
+        /// <summary>
+        /// 小程序简单监听方法，
+        /// 这里是监听了群签到。
+        /// </summary>
+        /// <param name="e"></param>
+        [CQJson("com.tencent.qq.checkin", EventType = EventType.GroupMessage)]
+        public void CheckInListener(GroupMessageEventArgs e)
+        {
+            _logger.LogInformation($"{e.Sender.Id} 签到成功！");
+
+            // 当然这里也是可以返回 0 或 1 的。
+        }
+    ```
+- 使用属性 `[CQJson]` 来将本函数定义为一个小程序监听函数。若接收到合适的消息，本方法会被调用。
+- 方法参数会被服务容器进行依赖注入，注入环境为 Scope。
 
 ### 智能类型转换
 - 见类 `OneBot.FrameworkDemo.Models.Duration`
@@ -80,4 +108,4 @@
 - 若不需要指令路由，依然可以通过监听事件来添加自己的处理逻辑。
 
 ### 消息处理链
-- 指令函数可以返回 `int` 类型，基本事件返回 `int` 类型。若返回值为 1 则该事件阻断，不再传递给后续指令或事件监听函数。
+- 指令函数可以返回 `int` 类型，基本事件返回 `int` 类型。若返回值为 1 则该事件阻断，不再传递给后续指令或事件监听函数；若返回值为 0 则继续传递。

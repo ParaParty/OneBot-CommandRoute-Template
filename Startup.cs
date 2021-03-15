@@ -1,15 +1,11 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Configuration;
 using OneBot.CommandRoute.Models.VO;
 using OneBot.CommandRoute.Services;
-using OneBot.CommandRoute.Services.Implements;
 using OneBot.FrameworkDemo.Modules;
-using OneBot_CommandRoute.CommandRoute.Utils;
-using YukariToolBox.FormatLog;
+using OneBot_CommandRoute.CommandRoute.Mixin;
 
 
 namespace OneBot.FrameworkDemo
@@ -28,21 +24,12 @@ namespace OneBot.FrameworkDemo
         public void ConfigureServices(IServiceCollection services)
         {
             // 配置机器人核心
-
             // 设置 OneBot 配置
             services.Configure<CQHttpServerConfigModel>(Configuration.GetSection("CQHttpConfig"));
-
-            // 设置 OneBot 客户端（Sora）
-            services.AddSingleton<IBotService, BotService>();
-
-            // 设置指令路由服务
-            services.AddSingleton<ICommandService, CommandService>();
-
-            // 设置日志服务，将 Sora 日志服务设置 Microsoft.Extensions.Logging.ILogger
-            services.AddSingleton<ILogService, YukariToolBoxLogger>();
+            services.ConfigureOneBot();
 
             // 添加指令 / 事件
-            // 使用单例模式
+            // 推荐使用单例模式（而实际上框架代码也是当单例模式使用的）
             services.AddSingleton<IOneBotController, TestModule>();
             // 一行一行地将指令模块加进去
         }
