@@ -77,11 +77,12 @@
 - 每一条消息都在 `Microsoft.Extensions.DependencyInjection` 的一个 `Scope` 中。可以根据需要添加自己的服务。
 - 指令参数中多余的参数会被 scope 容器中的服务填充。
 - 指令方法的参数填充优先级：
-  1. 指令参数（指令定义的参数名和形参列表保持一致，若不一致可使用 `CommandParameter` 指定）
-  2. 指令参数数组（`[ParsedArguments] object[] args`）
-  3. 原始事件信息 `BaseSoraEventArgs`、`PrivateMessageEventArgs`、`GroupMessageEventArgs`
-  4. Scope 对象 `IServiceScope`
-  5. 剩余的未被上述可能成功填充的参数均会被从 Scope 容器中获取的对象填充。
+  1. 指令参数（指令定义的参数名和形参列表保持一致，若不一致可使用 `CommandParameter` 指定）。
+  2. 指令参数数组（`[ParsedArguments] object[] args`）。
+  3. 原始事件信息 `BaseSoraEventArgs`、`PrivateMessageEventArgs`、`GroupMessageEventArgs`。
+  4. Scope 对象 `IServiceScope`。
+  5. OneBot 上下文对象 `OneBotContext`。
+  6. 剩余的未被上述可能成功填充的参数均会被从 Scope 容器中获取的对象填充。
 
 ### 基本事件
 - 见类 `OneBot.FrameworkDemo.Modules.TestModule`。
@@ -89,23 +90,33 @@
         public TestModule(ICommandService commandService, ILogger<TestModule> logger)
         {
             // 通过构造函数获得指令路由服务对象
-
-            // 添加自己的处理事件方法
-            commandService.Event.OnGroupMessage += (scope, args) =>
+            
+            // 基本事件处理例子
+            // 如果你不想要指令路由，可以使用这个方法来注册最原始的事件监听方法
+            commandService.Event.OnGroupMessage += (context) =>
             {
+                var args = context.WrapSoraEventArgs<GroupMessageEventArgs>();
+                
                 // 在控制台中复读群里的信息
                 logger.LogInformation($"{args.SourceGroup.Id} : {args.Sender.Id} : {args.Message.RawText}");
+
                 return 0;
+                // 这里返回 0，表示继续传递该事件给后续的指令或监听。
             };
 
-            // 全局异常处理
-            commandService.Event.OnException += (scope, args, exception) =>
+            // 全局异常处理事件
+            commandService.Event.OnException += (context, exception) =>
             {
                 logger.LogError($"{exception.Message}");
             };
+
+            _logger = logger;
         }
     ```
 - 若不需要指令路由，依然可以通过监听事件来添加自己的处理逻辑。
+
+### 事件拦截器
+- 见类 `OneBot.FrameworkDemo.Middleware.TestMiddleware`
 
 ### 消息处理链
 - 指令函数可以返回 `int` 类型，基本事件返回 `int` 类型。若返回值为 1 则该事件阻断，不再传递给后续指令或事件监听函数；若返回值为 0 则继续传递。
