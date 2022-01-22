@@ -43,12 +43,25 @@ namespace OneBot.FrameworkDemo
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // 初始化
-            var serviceProvider = app.ApplicationServices;
+            /*
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
 
-            // 初始化机器人核心
-            var soraService = serviceProvider.GetService<IBotService>()!;
-            soraService.Start();
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapGet("/", async context =>
+                {
+                    await context.Response.WriteAsync("Hello World!");
+                });
+            });
+            */
+            
+            // 再也不需要手动启动 Sora 服务了
+            // 具体改动见 https://github.com/ParaParty/OneBot-CommandRoute-Template/issues/2
         }
     }
 }

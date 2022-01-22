@@ -16,16 +16,14 @@ namespace OneBot.FrameworkDemo.Attributes
     {
         public override void Invoke(OneBotContext context)
         {
-            IServiceScope scope = context.ServiceScope;
             BaseSoraEventArgs baseSoraEventArgs = context.SoraEventArgs;
-            
-            GroupMessageEventArgs p = baseSoraEventArgs as GroupMessageEventArgs;
-            if (p == null) return;
 
-            var taskValue = p.SoraApi.GetGroupMemberInfo(p.SourceGroup, p.Sender.Id, true);
-            taskValue.AsTask().Wait();
+            if (baseSoraEventArgs is not GroupMessageEventArgs p) return;
 
-            if (taskValue.Result.apiStatus.RetCode != ApiStatusType.OK)
+            var taskValue = p.SoraApi.GetGroupMemberInfo(p.SourceGroup, p.Sender.Id, true).AsTask();
+            taskValue.Wait();
+
+            if (taskValue.Result.apiStatus.RetCode != ApiStatusType.Ok)
             {
                 return;
             }
