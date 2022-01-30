@@ -1,35 +1,43 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using OneBot.CommandRoute.Mixin;
 using OneBot.CommandRoute.Models.VO;
 using OneBot.CommandRoute.Services;
 using OneBot.FrameworkDemo.Middleware;
 using OneBot.FrameworkDemo.Modules;
 
-var builder = WebApplication.CreateBuilder(args);
-var services = builder.Services;
-IConfiguration configuration = builder.Configuration;
+namespace OneBot.FrameworkDemo;
 
-#region ConfigureServices
-// ÅäÖÃ»úÆ÷ÈËºËĞÄ
-// ÉèÖÃ OneBot ÅäÖÃ
-services.Configure<CQHttpServerConfigModel>(configuration.GetSection("CQHttpConfig"))
-    .ConfigureOneBot();
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        // åˆ›å»ºä¸»æœº
+        var builder = Host.CreateDefaultBuilder(args);
 
-// Ìí¼ÓÖĞ¼ä¼ş
-// µ¥ÀıÄ£Ê½»òÔ­ĞÍÄ£Ê½¶¼¿ÉÒÔ£¬ÎÊÌâ²»´ó¡£
-// services.AddSingleton<IOneBotMiddleware, TestMiddleware>();
-services.AddScoped<IOneBotMiddleware, TestMiddleware>()
+        // é…ç½® OneBot ä¸»æœº
+        builder.ConfigureOneBotHost();
 
-// Ìí¼ÓÖ¸Áî / ÊÂ¼ş
-// ÍÆ¼öÊ¹ÓÃµ¥ÀıÄ£Ê½£¨¶øÊµ¼ÊÉÏ¿ò¼Ü´úÂëÒ²ÊÇµ±µ¥ÀıÄ£Ê½Ê¹ÓÃµÄ£©
-    .AddSingleton<IOneBotController, TestModule>();
-// Ò»ĞĞÒ»ĞĞµØ½«Ö¸ÁîÄ£¿é¼Ó½øÈ¥
-#endregion
+        // é…ç½®æœåŠ¡
+        builder.ConfigureServices((context, services) =>
+        {
+            var configuration = context.Configuration;
+            // é…ç½®æœºå™¨äººæ ¸å¿ƒ
+            // è®¾ç½® OneBot é…ç½®
+            services.Configure<CQHttpServerConfigModel>(configuration.GetSection("CQHttpConfig"));
+            services.ConfigureOneBot();
 
-var app = builder.Build();
+            // æ·»åŠ ä¸­é—´ä»¶
+            // å•ä¾‹æ¨¡å¼æˆ–åŸå‹æ¨¡å¼éƒ½å¯ä»¥ï¼Œé—®é¢˜ä¸å¤§ã€‚
+            services.AddScoped<IOneBotMiddleware, TestMiddleware>();
 
-#region Configure
-// ÔÙÒ²²»ĞèÒªÊÖ¶¯Æô¶¯ Sora ·şÎñÁË
-// ¾ßÌå¸Ä¶¯¼û https://github.com/ParaParty/OneBot-CommandRoute-Template/issues/2
-#endregion
+            // æ·»åŠ æŒ‡ä»¤ / äº‹ä»¶
+            // æ¨èä½¿ç”¨å•ä¾‹æ¨¡å¼ï¼ˆè€Œå®é™…ä¸Šæ¡†æ¶ä»£ç ä¹Ÿæ˜¯å½“å•ä¾‹æ¨¡å¼ä½¿ç”¨çš„ï¼‰
+            services.AddSingleton<IOneBotController, TestModule>();
+            // ä¸€è¡Œä¸€è¡Œåœ°å°†æŒ‡ä»¤æ¨¡å—åŠ è¿›å»
+        });
 
-app.Run();
+        // å¼€å§‹è¿è¡Œ
+        builder.Build().Run();
+    }
+}

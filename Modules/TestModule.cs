@@ -1,9 +1,10 @@
+using System;
+using Microsoft.Extensions.Logging;
 using OneBot.CommandRoute.Attributes;
 using OneBot.CommandRoute.Models.Enumeration;
 using OneBot.CommandRoute.Services;
 using OneBot.FrameworkDemo.Attributes;
 using OneBot.FrameworkDemo.Models;
-
 using Sora.Entities;
 using Sora.EventArgs.SoraEvent;
 
@@ -19,24 +20,24 @@ public class TestModule : IOneBotController
     public TestModule(ICommandService commandService, ILogger<TestModule> logger)
     {
         // 通过构造函数获得指令路由服务对象
-
+            
         // 基本事件处理例子
         // 如果你不想要指令路由，可以使用这个方法来注册最原始的事件监听方法
         commandService.Event.OnGroupMessage += (scope) =>
         {
             var args = scope.WrapSoraEventArgs<GroupMessageEventArgs>();
-
+                
             // 在控制台中复读群里的信息
-            logger.LogInformation("{SourceGroup} : {Sender} : {Message}", args.SourceGroup.Id, args.Sender.Id, args.Message.RawText);
+            logger.LogInformation($"{args.SourceGroup.Id} : {args.Sender.Id} : {args.Message.RawText}");
 
             return 0;
             // 这里返回 0，表示继续传递该事件给后续的指令或监听。
         };
 
         // 全局异常处理事件
-        commandService.Event.OnException += (context, exception) =>
+        commandService.Event.OnException += (scope, exception) =>
         {
-            logger.LogError(exception, "{Exception}", exception.Message);
+            logger.LogError($"{exception.Message}");
         };
 
         _logger = logger;
@@ -53,13 +54,13 @@ public class TestModule : IOneBotController
     /// <param name="args">全参数列表</param>
     /// <param name="userInfo">被禁言用户</param>
     /// <param name="e">原始事件信息</param>
-    [Command("mute <uid> [duration]", Alias = new[] { "禁言 <uid> [duration]", "口球 <uid> [duration]" }, EventType = EventType.GroupMessage)]
+    [Command("mute <uid> [duration]", Alias = new[] {"禁言 <uid> [duration]", "口球 <uid> [duration]"}, EventType = EventType.GroupMessage)]
     [DemoBeforeCommand]
     public void MuteInGroupWithDuration(Duration duration, [ParsedArguments] object[] args, [CommandParameter("uid")] User userInfo, GroupMessageEventArgs e)
     {
-        duration ??= new(600);
-        _logger.LogInformation("{Sender} 使用指令禁言 {User} 用户 {Duration} 秒。", e.Sender.Id, userInfo.Id, duration.Seconds);
-
+        duration ??= new Duration(600);
+        _logger.LogInformation($"{e.Sender.Id} 使用指令禁言 {userInfo.Id} 用户 {duration.Seconds} 秒。");
+            
         // 这个指令没有返回值，其隐式返回 1，在执行完毕后不再传递该事件给后续的指令或监听。
     }
 
@@ -72,18 +73,19 @@ public class TestModule : IOneBotController
     /// <param name="uid">被禁言用户</param>
     /// <param name="duration">禁言时长</param>
     /// <param name="e">原始事件信息</param>
-    [Command("mute <gid> <uid> [duration]", Alias = new[] { "禁言 <gid> <uid> [duration]", "口球 <gid> <uid> [duration]" }, EventType = EventType.GroupMessage | EventType.PrivateMessage)]
+
+    [Command("mute <gid> <uid> [duration]", Alias = new[] {"禁言 <gid> <uid> [duration]", "口球 <gid> <uid> [duration]"}, EventType = EventType.GroupMessage | EventType.PrivateMessage)]
     public int MuteInGroupWithGroupId(Group gid, User uid, Duration duration, BaseSoraEventArgs e)
     {
-        duration ??= new(600);
+        duration ??= new Duration(600);
 
         switch (e)
         {
             case GroupMessageEventArgs s1:
-                _logger.LogInformation("{Sender} 使用指令禁言 {Gid} 群里的 {Uid} 用户 {Duration} 秒。", s1.Sender.Id, gid.Id, uid.Id, duration.Seconds);
+                _logger.LogInformation($"{s1.Sender.Id} 使用指令禁言 {gid.Id} 群里的 {uid.Id} 用户 {duration.Seconds} 秒。");
                 break;
             case PrivateMessageEventArgs s2:
-                _logger.LogInformation("{Sender} 使用指令禁言 {Gid} 群里的 {Uid} 用户 {Duration} 秒。", s2.Sender.Id, gid.Id, uid.Id, duration.Seconds);
+                _logger.LogInformation($"{s2.Sender.Id} 使用指令禁言 {gid.Id} 群里的 {uid.Id} 用户 {duration.Seconds} 秒。");
                 break;
         }
 
@@ -101,7 +103,7 @@ public class TestModule : IOneBotController
     [CQJson("com.tencent.qq.checkin", EventType = EventType.GroupMessage)]
     public void CheckInListener(GroupMessageEventArgs e)
     {
-        _logger.LogInformation("{Sender} 签到成功！", e.Sender.Id);
+        _logger.LogInformation($"{e.Sender.Id} 签到成功！");
 
         // 当然这里也是可以返回 0 或 1 的。
     }
@@ -115,4 +117,3 @@ public class TestModule : IOneBotController
         throw new Exception("测试全局异常处理");
     }
 }
-

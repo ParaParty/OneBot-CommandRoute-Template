@@ -1,7 +1,7 @@
-
+using System;
+using Microsoft.Extensions.DependencyInjection;
 using OneBot.CommandRoute.Attributes;
 using OneBot.CommandRoute.Models;
-
 using Sora.Entities.Info;
 using Sora.Enumeration.ApiType;
 using Sora.Enumeration.EventParamsType;
@@ -14,20 +14,22 @@ namespace OneBot.FrameworkDemo.Attributes;
 /// </summary>
 public class DemoBeforeCommandAttribute : BeforeCommandAttribute
 {
-    public override async void Invoke(OneBotContext context)
+    public override void Invoke(OneBotContext context)
     {
+        IServiceScope scope = context.ServiceScope;
         BaseSoraEventArgs baseSoraEventArgs = context.SoraEventArgs;
 
         if (baseSoraEventArgs is not GroupMessageEventArgs p) return;
 
-        var (apiStatus, memberInfo) = await p.SoraApi.GetGroupMemberInfo(p.SourceGroup, p.Sender.Id, true);
+        var taskValue = p.SoraApi.GetGroupMemberInfo(p.SourceGroup, p.Sender.Id, true).AsTask();
+        taskValue.Wait();
 
-        if (apiStatus.RetCode != ApiStatusType.Ok)
+        if (taskValue.Result.apiStatus.RetCode != ApiStatusType.Ok)
         {
             return;
         }
 
-        GroupMemberInfo uInfo = memberInfo;
+        GroupMemberInfo uInfo = taskValue.Result.memberInfo;
 
         if (uInfo.Role != MemberRoleType.Member)
         {

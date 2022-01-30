@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 
 namespace OneBot.FrameworkDemo.Models;
@@ -12,7 +13,7 @@ public class Duration
     /// <summary>
     /// 时长
     /// </summary>
-    public long Seconds { get; }
+    public long Seconds { get; private set; }
     public Duration(long seconds)
     {
         Seconds = seconds;
@@ -29,7 +30,7 @@ public class Duration
             throw new ArgumentException($"无法解析参数。 {seconds}");
         }
 
-        return new(seconds);
+        return new Duration(seconds);
     }
 
     /// <summary>
@@ -43,7 +44,7 @@ public class Duration
             throw new ArgumentException($"无法解析参数。 {seconds}");
         }
 
-        return new(seconds);
+        return new Duration(seconds);
     }
 
     /// <summary>
@@ -58,9 +59,9 @@ public class Duration
             throw new ArgumentException($"无法解析参数。 {value}");
         }
 
-        string s = "";
+        var s = "";
         long ret = 0;
-        for (int i = 0; i < value.Length; i++)
+        for (var i = 0; i < value.Length; i++)
         {
             if ((value[i] == 's') || (value[i] == 'S'))
             {
@@ -92,7 +93,7 @@ public class Duration
 
             s += value[i];
         }
-        return new(ret);
+        return new Duration(ret);
     }
 
     /// <summary>
@@ -111,7 +112,7 @@ public class Duration
     /// <param name="s"></param>
     /// <param name="duration"></param>
     /// <returns></returns>
-    public static bool TryParse(string s, out Duration? duration)
+    public static bool TryParse(string s, out Duration duration)
     {
         duration = null;
         if (s == null) return false;
