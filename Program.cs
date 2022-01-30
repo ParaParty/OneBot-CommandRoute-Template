@@ -9,27 +9,27 @@ var services = builder.Services;
 IConfiguration configuration = builder.Configuration;
 
 #region ConfigureServices
-// ÅäÖÃ»úÆ÷ÈËºËĞÄ
-// ÉèÖÃ OneBot ÅäÖÃ
+// é…ç½®æœºå™¨äººæ ¸å¿ƒ
+// è®¾ç½® OneBot é…ç½®
 services.Configure<CQHttpServerConfigModel>(configuration.GetSection("CQHttpConfig"))
     .ConfigureOneBot();
 
-// Ìí¼ÓÖĞ¼ä¼ş
-// µ¥ÀıÄ£Ê½»òÔ­ĞÍÄ£Ê½¶¼¿ÉÒÔ£¬ÎÊÌâ²»´ó¡£
+// æ·»åŠ ä¸­é—´ä»¶
+// å•ä¾‹æ¨¡å¼æˆ–åŸå‹æ¨¡å¼éƒ½å¯ä»¥ï¼Œé—®é¢˜ä¸å¤§ã€‚
 // services.AddSingleton<IOneBotMiddleware, TestMiddleware>();
 services.AddScoped<IOneBotMiddleware, TestMiddleware>()
 
-// Ìí¼ÓÖ¸Áî / ÊÂ¼ş
-// ÍÆ¼öÊ¹ÓÃµ¥ÀıÄ£Ê½£¨¶øÊµ¼ÊÉÏ¿ò¼Ü´úÂëÒ²ÊÇµ±µ¥ÀıÄ£Ê½Ê¹ÓÃµÄ£©
+// æ·»åŠ æŒ‡ä»¤ / äº‹ä»¶
+// æ¨èä½¿ç”¨å•ä¾‹æ¨¡å¼ï¼ˆè€Œå®é™…ä¸Šæ¡†æ¶ä»£ç ä¹Ÿæ˜¯å½“å•ä¾‹æ¨¡å¼ä½¿ç”¨çš„ï¼‰
     .AddSingleton<IOneBotController, TestModule>();
-// Ò»ĞĞÒ»ĞĞµØ½«Ö¸ÁîÄ£¿é¼Ó½øÈ¥
+// ä¸€è¡Œä¸€è¡Œåœ°å°†æŒ‡ä»¤æ¨¡å—åŠ è¿›å»
 #endregion
 
 var app = builder.Build();
 
 #region Configure
-// ÔÙÒ²²»ĞèÒªÊÖ¶¯Æô¶¯ Sora ·şÎñÁË
-// ¾ßÌå¸Ä¶¯¼û https://github.com/ParaParty/OneBot-CommandRoute-Template/issues/2
+// å†ä¹Ÿä¸éœ€è¦æ‰‹åŠ¨å¯åŠ¨ Sora æœåŠ¡äº†
+// å…·ä½“æ”¹åŠ¨è§ https://github.com/ParaParty/OneBot-CommandRoute-Template/issues/2
 #endregion
 
 app.Run();
